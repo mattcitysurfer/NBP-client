@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body ng-controller="Currencies as ccy" style="margin: 1px">
+
+	<div style="max-width:300px; min-width:300px; margin: 1px;">
+
+
+	    <h1>Kursy NBP:</h1>
+		
+		<form>	
+			<select ng-model="ccy.code">
+				<option ng-repeat="code in ccy.codeList">{{code}}</option>
+			</select> 
+			<input type="text" ng-model="ccy.code" placeholder="ccy code"></input>
+			<button ng-click="ccy.refreshData('a')" ng-disabled="!ccy.isValid()">Refresh</button>
+		</form>
+		<p/>
+
+		<div ng-hide="ccy.currency==null" ng-click="ccy.sayHello()">
+			MID:<div ng-style="{'font-weight': 'bold', 'font-size': '22px'}">{{ccy.mid}}</div>
+			<div>{{ccy.currency}}</div>
+			<div>{{ccy.date}}</div>
+		</div>
+
+
+	</div>
+
+	<script type="text/javascript" src="js/angular.min.js"></script>	
+	<script type="text/javascript" src="js/app.js"></script>
+</body>
+</html>
