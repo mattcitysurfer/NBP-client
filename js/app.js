@@ -6,17 +6,21 @@ angular.module('app', [])
 
 	
     vm.refreshData = function(tableName) {
+		vm.historyRates = null;
+		vm.tableName = null;
+		historyRatesCount = null;
+
         $http({
             method : 'GET',
             url : 'http://api.nbp.pl/api/exchangerates/rates/' + tableName + '/' + vm.code
         })
         .then(
         	function success(response) {
+        		vm.tableName = tableName;
 				vm.result = response.data;
 				vm.mid = vm.result.rates[0].mid;
 				vm.currency = vm.result.currency.toUpperCase();
-				vm.date = vm.result.rates[0].effectiveDate
-
+				vm.date = vm.result.rates[0].effectiveDate;
         	},
         	function error(response) {
             	console.log('refreshData - table ' + tableName + ' - 404');
@@ -58,6 +62,21 @@ angular.module('app', [])
 		);	
 	}
 
+	vm.showHistory = function(){
+		$http({
+			method : 'GET',
+			url : 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code + '/last/' + vm.historyRatesCount
+		})
+		.then(
+			function success(response) {
+				vm.historyRates = response.data.rates;
+				vm.historyRates.reverse();
+			},
+			function error(response){
+				console.log('showHistory - 404');
+			}
+		);
+	}
 
 	vm.isValid = function(){
 		if(!vm.code == '' && vm.code.length == 3){

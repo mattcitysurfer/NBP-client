@@ -20,13 +20,40 @@
 		</form>
 		<p/>
 
-		<div ng-hide="ccy.currency==null" ng-click="ccy.sayHello()">
-			MID:<div ng-style="{'font-weight': 'bold', 'font-size': '22px'}">{{ccy.mid}}</div>
+		<div ng-hide="ccy.currency==null">
+			MID:
+			<div ng-style="{'font-weight': 'bold', 'font-size': '22px'}">{{ccy.mid}}</div>
 			<div>{{ccy.currency}}</div>
 			<div>{{ccy.date}}</div>
+
+			<p>
+
+			<form>
+				Ostatnie  
+				<select ng-model="ccy.historyRatesCount">
+					<option ng-click="ccy.showHistory()">5</option>
+					<option ng-click="ccy.showHistory()">10</option>
+					<option ng-click="ccy.showHistory()">15</option>
+					<option ng-click="ccy.showHistory()">20</option>
+					<option ng-click="ccy.showHistory()">25</option>
+					<option ng-click="ccy.showHistory()">30</option>
+				</select>
+				<button ng-click="ccy.showHistory()">Odśwież</button>
+				notowań
+			</form>
 		</div>
 
+		<p>
 
+		<table ng-hide="ccy.historyRates==null">
+			<tr>
+				<th>Data</th>
+				<th>Kurs (mid)</th>
+			<tr ng-repeat="rate in ccy.historyRates">
+				<td>{{rate.effectiveDate}}</td>
+				<td align="right">{{rate.mid}}</td>
+			</tr>
+		</table>
 	</div>
 
 	<script type="text/javascript" src="js/angular.min.js"></script>	
