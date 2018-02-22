@@ -1,82 +1,94 @@
 
 angular.module('app', [])
-.controller('Currencies', function($http) {
+.controller('Currencies', function($http, $q) {
 
     var vm = this;
 
-	
-    vm.refreshData = function(tableName) {
-		vm.historyRates = null;
-		vm.tableName = null;
-		historyRatesCount = null;
+    var requestPromise = [];
 
-        $http({
-            method : 'GET',
-            url : 'http://api.nbp.pl/api/exchangerates/rates/' + tableName + '/' + vm.code
-        })
-        .then(
-        	function success(response) {
-        		vm.tableName = tableName;
-				vm.result = response.data;
-				vm.mid = vm.result.rates[0].mid;
-				vm.currency = vm.result.currency.toUpperCase();
-				vm.date = vm.result.rates[0].effectiveDate;
-        	},
-        	function error(response) {
-            	console.log('refreshData - table ' + tableName + ' - 404');
-				if(tableName=='a'){
-					vm.refreshData('b');
-				}
-        	}
-        );
-    }
- 
 
-	vm.refreshList = function() {
-		vm.codeList = [''];		 
-		 
+	vm.generateDropdownWithCcyCodes = function() {	 
+		vm.aTable = [];
+		vm.bTable = [];
+		vm.codeList = [];
+
 		vm.getList('a');
-		vm.getList('b');	
+		vm.getList('b');
+
+		vm.codeList.sort();
 	};
 
 	
 	vm.getList = function(tableName) {
-		 
-		$http({
-			method : 'GET',
-			url : 'http://api.nbp.pl/api/exchangerates/tables/' + tableName
-		})
-		.then(
-			function success(response) {
-				vm.listData = response.data;
-				vm.rateList = vm.listData[0].rates;
-				for(i=0; i < vm.rateList.length; i++){
-					vm.codeList.push(vm.rateList[i].code);
+		var uri = 'http://api.nbp.pl/api/exchangerates/tables/' + tableName;
+		vm.getDataFromUri(uri);
+
+		$q.all(requestPromise).then(function(data) {
+			vm.rateList = vm.apiResponse[0].rates;
+			for(i=0; i < vm.rateList.length; i++){
+				vm.codeList.push(vm.rateList[i].code);
+				if(tableName == 'a'){
+					vm.aTable.push(vm.rateList[i].code);
+				}else if (tableName == 'b'){
+					vm.bTable.push(vm.rateList[i].code);
 				}
-				vm.codeList.sort();
-			},
-			function error(response) {
-				console.log('refreshList - 404');
 			}
+			vm.codeList.sort();
+		}); 
+	}
+	
 
-		);	
+    vm.showCurrentRate = function() {
+		vm.tableName = null;
+		vm.historyRates = null;
+		vm.historyRatesCount = null;
+
+		if(vm.aTable.contains(vm.code.toUpperCase())){
+			vm.tableName='a';
+		}else if(vm.bTable.contains(vm.code.toUpperCase())){
+			vm.tableName='b';
+		}
+
+		var uri = 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName +  '/' + vm.code;		
+		vm.getDataFromUri(uri);
+
+		$q.all(requestPromise).then(function(data) {
+	    	vm.currency = vm.apiResponse.currency.toUpperCase();
+			vm.mid = vm.apiResponse.rates[0].mid;
+			vm.date = vm.apiResponse.rates[0].effectiveDate;
+		});
+
+    }
+
+
+	vm.showHistoryRates = function(){
+		var uri = 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code + '/last/' + vm.historyRatesCount
+		vm.getDataFromUri(uri);
+
+		$q.all(requestPromise).then(function(data) {
+			vm.historyRates = vm.apiResponse.rates;
+			vm.historyRates.reverse();
+		});
 	}
 
-	vm.showHistory = function(){
-		$http({
-			method : 'GET',
-			url : 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code + '/last/' + vm.historyRatesCount
-		})
-		.then(
-			function success(response) {
-				vm.historyRates = response.data.rates;
-				vm.historyRates.reverse();
-			},
-			function error(response){
-				console.log('showHistory - 404');
-			}
-		);
-	}
+
+    vm.getDataFromUri = function (uri){
+    	vm.apiResponse = null;
+	    var httpPromise = $http({
+	        method : 'GET',
+	        url : uri
+	    })
+	    .then(
+	    	function success(response) {
+	    		vm.apiResponse = response.data;
+	    	},
+	    	function error(response) {
+	        	console.log('getDataFromUri - 404 - ' + uri);
+	    	}
+	    );
+	    requestPromise.push(httpPromise);
+    }
+
 
 	vm.isValid = function(){
 		if(!vm.code == '' && vm.code.length == 3){
@@ -85,13 +97,16 @@ angular.module('app', [])
 			return false;
 		}
 	}
-	
-
-	vm.sayHello = function(){
-		console.log('Hello!');
-	}
 
 
-	vm.refreshList();
+	Array.prototype.contains = function (value) {
+    	for (i in this) {
+        	if (this[i] == value) return true;
+   		}
+   		return false;
+}
+
+
+	vm.generateDropdownWithCcyCodes();
 
 });
