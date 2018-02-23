@@ -39,7 +39,7 @@
 					<option>30</option>
 				</select>
 				notowań
-				<button ng-click="ccy.showHistoryRates()">Odśwież</button>
+				<button ng-click="ccy.showHistoryRates()" ng-disabled="!ccy.isHistoryRefreshValid()">Odśwież</button>
 			</form>
 		</div>
 

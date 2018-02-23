@@ -43,6 +43,7 @@ angular.module('app', [])
     vm.showCurrentRate = function() {
 		vm.tableName = null;
 		vm.historyRates = null;
+		vm.codeCurrentlyDisplayed = vm.code;
 
 		if(vm.aTable.contains(vm.code.toUpperCase())){
 			vm.tableName='a';
@@ -111,6 +112,10 @@ angular.module('app', [])
 			}
 		}
 		return false;
+	}
+
+	vm.isHistoryRefreshValid = function(){
+		return vm.codeCurrentlyDisplayed == vm.code && vm.historyRatesCount;
 	}
 
 
