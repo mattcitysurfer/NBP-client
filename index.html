@@ -15,8 +15,8 @@
 			<select ng-model="ccy.code">
 				<option ng-repeat="code in ccy.codeList">{{code}}</option>
 			</select> 
-			<input type="text" ng-model="ccy.code" placeholder="ccy code"></input>
-			<button ng-click="ccy.showCurrentRate()" ng-disabled="!ccy.isValid()">Odśwież</button>
+			<input type="text" ng-model="ccy.code" placeholder="kod waluty"></input>
+			<button ng-click="ccy.showCurrentRate()" ng-disabled="!ccy.isCurrentRefreshValid()">Odśwież</button>
 		</form>
 		<p/>
 
@@ -31,15 +31,15 @@
 			<form>
 				Ostatnie  
 				<select ng-model="ccy.historyRatesCount">
-					<option ng-click="ccy.showHistoryRates()">5</option>
-					<option ng-click="ccy.showHistoryRates()">10</option>
-					<option ng-click="ccy.showHistoryRates()">15</option>
-					<option ng-click="ccy.showHistoryRates()">20</option>
-					<option ng-click="ccy.showHistoryRates()">25</option>
-					<option ng-click="ccy.showHistoryRates()">30</option>
+					<option>5</option>
+					<option>10</option>
+					<option>15</option>
+					<option>20</option>
+					<option>25</option>
+					<option>30</option>
 				</select>
-				<button ng-click="ccy.showHistoryRates()">Odśwież</button>
 				notowań
+				<button ng-click="ccy.showHistoryRates()">Odśwież</button>
 			</form>
 		</div>
 

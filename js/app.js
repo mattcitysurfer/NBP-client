@@ -24,16 +24,18 @@ angular.module('app', [])
 		vm.getDataFromUri(uri);
 
 		$q.all(requestPromise).then(function(data) {
-			vm.rateList = vm.apiResponse[0].rates;
-			for(i=0; i < vm.rateList.length; i++){
-				vm.codeList.push(vm.rateList[i].code);
-				if(tableName == 'a'){
-					vm.aTable.push(vm.rateList[i].code);
-				}else if (tableName == 'b'){
-					vm.bTable.push(vm.rateList[i].code);
+			if(vm.apiResponse){
+				vm.rateList = vm.apiResponse[0].rates;
+				for(i=0; i < vm.rateList.length; i++){
+					vm.codeList.push(vm.rateList[i].code);
+					if(tableName == 'a'){
+						vm.aTable.push(vm.rateList[i].code);
+					}else if (tableName == 'b'){
+						vm.bTable.push(vm.rateList[i].code);
+					}
 				}
+				vm.codeList.sort();
 			}
-			vm.codeList.sort();
 		}); 
 	}
 	
@@ -41,7 +43,6 @@ angular.module('app', [])
     vm.showCurrentRate = function() {
 		vm.tableName = null;
 		vm.historyRates = null;
-		vm.historyRatesCount = null;
 
 		if(vm.aTable.contains(vm.code.toUpperCase())){
 			vm.tableName='a';
@@ -53,9 +54,18 @@ angular.module('app', [])
 		vm.getDataFromUri(uri);
 
 		$q.all(requestPromise).then(function(data) {
-	    	vm.currency = vm.apiResponse.currency.toUpperCase();
-			vm.mid = vm.apiResponse.rates[0].mid;
-			vm.date = vm.apiResponse.rates[0].effectiveDate;
+			if(vm.apiResponse){
+		    	vm.currency = vm.apiResponse.currency.toUpperCase();
+				vm.mid = vm.apiResponse.rates[0].mid;
+				vm.date = vm.apiResponse.rates[0].effectiveDate;
+				if(vm.historyRatesCount){
+					vm.showHistoryRates();
+				}
+			}else{
+				vm.currency = null;
+				vm.mid = null;
+				vm.date = null;
+			}
 		});
 
     }
@@ -66,8 +76,10 @@ angular.module('app', [])
 		vm.getDataFromUri(uri);
 
 		$q.all(requestPromise).then(function(data) {
-			vm.historyRates = vm.apiResponse.rates;
-			vm.historyRates.reverse();
+			if(vm.apiResponse){
+				vm.historyRates = vm.apiResponse.rates;
+				vm.historyRates.reverse();
+			}
 		});
 	}
 
@@ -90,12 +102,15 @@ angular.module('app', [])
     }
 
 
-	vm.isValid = function(){
-		if(!vm.code == '' && vm.code.length == 3){
-			return true;
-		} else{
-			return false;
+	vm.isCurrentRefreshValid = function(){
+		if (!vm.code == ''){
+			vm.code = vm.code.toUpperCase();
+
+			if(vm.code.length == 3){
+				return true;
+			}
 		}
+		return false;
 	}
 
 
