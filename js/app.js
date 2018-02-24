@@ -6,7 +6,6 @@ angular.module('app', [])
 
     var requestPromise = [];
 
-
 	vm.generateDropdownWithCcyCodes = function() {	 
 		vm.aTable = [];
 		vm.bTable = [];
@@ -59,8 +58,9 @@ angular.module('app', [])
 		    	vm.currency = vm.apiResponse.currency.toUpperCase();
 				vm.mid = vm.apiResponse.rates[0].mid;
 				vm.date = vm.apiResponse.rates[0].effectiveDate;
+				vm.historyRatesCount = '0';
 				if(vm.historyRatesCount){
-					vm.showHistoryRates();
+					vm.showHideHistoryRates();
 				}
 			}else{
 				vm.currency = null;
@@ -71,17 +71,24 @@ angular.module('app', [])
 
     }
 
+    vm.showHideHistoryRates = function(){
+    	if(vm.historyRatesCount!=0){
+    		vm.showHistoryRates();
+    	}else{
+			vm.historyRates=null;
+		}
+    }
 
 	vm.showHistoryRates = function(){
-		var uri = 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code + '/last/' + vm.historyRatesCount
-		vm.getDataFromUri(uri);
+			var uri = 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code + '/last/' + vm.historyRatesCount
+			vm.getDataFromUri(uri);
 
-		$q.all(requestPromise).then(function(data) {
-			if(vm.apiResponse){
-				vm.historyRates = vm.apiResponse.rates;
-				vm.historyRates.reverse();
-			}
-		});
+			$q.all(requestPromise).then(function(data) {
+				if(vm.apiResponse){
+					vm.historyRates = vm.apiResponse.rates;
+					vm.historyRates.reverse();
+				}
+			});
 	}
 
 
