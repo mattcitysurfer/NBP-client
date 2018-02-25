@@ -32,8 +32,16 @@
 			<h3>Notowania historyczne</h3>
 
 			<form>
+				<input type="radio" ng-model="ccy.historySearchType" value="byDate"/>
+
+				<label>Od </label>
+				<input ng-model="ccy.fromDate" type="date" ng-disabled="ccy.historySearchType == 'byNumber'"/>
+				<label>do </label>
+				<input ng-model="ccy.toDate" type="date" ng-disabled="ccy.historySearchType == 'byNumber'"/>
+
+				<input type="radio" ng-model="ccy.historySearchType" value="byNumber"/>
 				<label>Ostatnie </label>
-				<select ng-model="ccy.historyRatesCount">
+				<select ng-model="ccy.historyRatesCount"  ng-disabled="ccy.historySearchType == 'byDate'">
 					<option>0</option>
 					<option>5</option>
 					<option>10</option>
@@ -43,6 +51,7 @@
 					<option>30</option>
 				</select>
 				<label>notowań</label>
+				<br>
 				<button ng-click="ccy.showHideHistoryRates()" ng-disabled="!ccy.isHistoryRefreshValid()">Odśwież</button>
 			</form>
 		</div>

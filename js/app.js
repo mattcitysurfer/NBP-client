@@ -3,7 +3,6 @@ angular.module('app', [])
 .controller('Currencies', function($http, $q) {
 
     var vm = this;
-
     var requestPromise = [];
 
 	vm.generateDropdownWithCcyCodes = function() {	 
@@ -58,7 +57,6 @@ angular.module('app', [])
 		    	vm.currency = vm.apiResponse.currency.toUpperCase();
 				vm.mid = vm.apiResponse.rates[0].mid;
 				vm.date = vm.apiResponse.rates[0].effectiveDate;
-				vm.historyRatesCount = '0';
 				if(vm.historyRatesCount){
 					vm.showHideHistoryRates();
 				}
@@ -68,31 +66,58 @@ angular.module('app', [])
 				vm.date = null;
 			}
 		});
-
     }
 
+
     vm.showHideHistoryRates = function(){
-    	if(vm.historyRatesCount!=0){
-    		vm.showHistoryRates();
-    	}else{
-			vm.historyRates=null;
+    	var uri = 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code;
+
+    	if(vm.historySearchType == 'byNumber' && vm.historyRatesCount != 0){
+    		uri = uri  + '/last/' + vm.historyRatesCount;
+    		vm.showHistoryRates(uri);
+    	}else if (vm.historySearchType == 'byDate' && (vm.fromDate != null || vm.toDate != null)){
+    		var fromTo = '/' + vm.parseDate(vm.fromDate) + '/' + vm.parseDate(vm.toDate);
+    		uri = uri + fromTo;
+			vm.showHistoryRates(uri);
+		}else{
+			console.log('History cleared');
+			vm.historyRates = null;
 		}
     }
 
-	vm.showHistoryRates = function(){
-			var uri = 'http://api.nbp.pl/api/exchangerates/rates/' + vm.tableName + '/' + vm.code + '/last/' + vm.historyRatesCount
-			vm.getDataFromUri(uri);
 
-			$q.all(requestPromise).then(function(data) {
-				if(vm.apiResponse){
-					vm.historyRates = vm.apiResponse.rates;
-					vm.historyRates.reverse();
-				}
-			});
+    vm.showHistoryRates = function(uri){
+		vm.getDataFromUri(uri);
+
+		$q.all(requestPromise).then(function(data) {
+			if(vm.apiResponse){
+				vm.historyRates = vm.apiResponse.rates;
+				vm.historyRates.reverse();
+			}
+		});
 	}
 
 
+    vm.parseDate = function(date){
+    	if(date != null){
+	    	var day = date.getDate();
+	    	if (day < 10) day = '0' + day;
+
+	    	var month = date.getMonth() + 1;
+	    	if (month < 10) month = '0' + month;
+	    	
+	    	var year = date.getFullYear();
+	    	
+	    	var dateFormated = year + '-' + month + '-' + day;
+	    	return dateFormated;
+    	}else{
+    		return '';
+    	}
+    }
+
+
     vm.getDataFromUri = function (uri){
+    	console.log(uri);
     	vm.apiResponse = null;
 	    var httpPromise = $http({
 	        method : 'GET',
@@ -101,9 +126,10 @@ angular.module('app', [])
 	    .then(
 	    	function success(response) {
 	    		vm.apiResponse = response.data;
+	    		//console.log(vm.apiResponse);
 	    	},
 	    	function error(response) {
-	        	console.log('getDataFromUri - 404 - ' + uri);
+	        	console.log('404 - ' + uri);
 	    	}
 	    );
 	    requestPromise.push(httpPromise);
@@ -121,6 +147,7 @@ angular.module('app', [])
 		return false;
 	}
 
+
 	vm.isHistoryRefreshValid = function(){
 		return vm.codeCurrentlyDisplayed == vm.code && vm.historyRatesCount;
 	}
@@ -135,5 +162,7 @@ angular.module('app', [])
 
 
 	vm.generateDropdownWithCcyCodes();
+	vm.historyRatesCount = '0';
+	vm.historySearchType = 'byDate';
 
 });
