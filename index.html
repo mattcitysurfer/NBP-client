@@ -15,7 +15,7 @@
 			<select ng-model="ccy.code">
 				<option ng-repeat="code in ccy.codeList">{{code}}</option>
 			</select> 
-			<input type="text" ng-model="ccy.code" placeholder="kod waluty" style="max-width:100px; min-width:100px;"></input>
+			<input type="text" ng-model="ccy.code" placeholder="kod waluty" maxlength="3" style="max-width:60px; min-width:60px;"></input>
 			<button ng-click="ccy.showCurrentRate()" ng-disabled="!ccy.isCurrentRefreshValid()">Odśwież</button>
 		</form>
 		<p/>
@@ -38,7 +38,7 @@
 				<input ng-model="ccy.fromDate" type="date" ng-disabled="ccy.historySearchType == 'byNumber'"/>
 				<label>do </label>
 				<input ng-model="ccy.toDate" type="date" ng-disabled="ccy.historySearchType == 'byNumber'"/>
-
+				<br>
 				<input type="radio" ng-model="ccy.historySearchType" value="byNumber"/>
 				<label>Ostatnie </label>
 				<select ng-model="ccy.historyRatesCount"  ng-disabled="ccy.historySearchType == 'byDate'">
